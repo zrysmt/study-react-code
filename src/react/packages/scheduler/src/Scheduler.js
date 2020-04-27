@@ -11,6 +11,7 @@
 import {enableSchedulerDebugging} from './SchedulerFeatureFlags';
 
 // TODO: Use symbols?
+// 优先级
 var ImmediatePriority = 1;
 var UserBlockingPriority = 2;
 var NormalPriority = 3;
@@ -55,7 +56,7 @@ function ensureHostCallbackIsScheduled() {
     // Don't schedule work yet; wait until the next time we yield.
     return;
   }
-  // Schedule the host callback using the earliest expiration in the list.
+  // Schedule the host callback using the earliest expiration in the list. // 使用列表中最先超时的回调
   var expirationTime = firstCallbackNode.expirationTime;
   if (!isHostCallbackScheduled) {
     isHostCallbackScheduled = true;
@@ -66,22 +67,25 @@ function ensureHostCallbackIsScheduled() {
   requestHostCallback(flushWork, expirationTime);
 }
 
+// 刷新第一次回调
 function flushFirstCallback() {
   var flushedNode = firstCallbackNode;
 
   // Remove the node from the list before calling the callback. That way the
   // list is in a consistent state even if the callback throws.
+  // 在调用回调之前移除该节点，即使回调抛错，列表也已经处理更新过了
   var next = firstCallbackNode.next;
   if (firstCallbackNode === next) {
     // This is the last callback in the list.
     firstCallbackNode = null;
     next = null;
   } else {
+    // 双向链表去除一个节点
     var lastCallbackNode = firstCallbackNode.previous;
     firstCallbackNode = lastCallbackNode.next = next;
     next.previous = lastCallbackNode;
   }
-
+  // 当前节点指向置空
   flushedNode.next = flushedNode.previous = null;
 
   // Now it's safe to call the callback.
@@ -102,6 +106,7 @@ function flushFirstCallback() {
 
   // A callback may return a continuation. The continuation should be scheduled
   // with the same priority and expiration as the just-finished callback.
+  // callback() 返回的是个函数，继续scheduled回调， 以相同的权重和过期时间
   if (typeof continuationCallback === 'function') {
     var continuationNode: CallbackNode = {
       callback: continuationCallback,

@@ -153,6 +153,7 @@ if (__DEV__) {
   };
 }
 
+// 创建一个更新队列
 export function createUpdateQueue<State>(baseState: State): UpdateQueue<State> {
   const queue: UpdateQueue<State> = {
     baseState,
@@ -168,6 +169,7 @@ export function createUpdateQueue<State>(baseState: State): UpdateQueue<State> {
   return queue;
 }
 
+// clone一个更新队列
 function cloneUpdateQueue<State>(
   currentQueue: UpdateQueue<State>,
 ): UpdateQueue<State> {
@@ -203,6 +205,7 @@ export function createUpdate(expirationTime: ExpirationTime): Update<*> {
   };
 }
 
+// 更新队列
 function appendUpdateToQueue<State>(
   queue: UpdateQueue<State>,
   update: Update<State>,
@@ -219,18 +222,20 @@ function appendUpdateToQueue<State>(
 
 export function enqueueUpdate<State>(fiber: Fiber, update: Update<State>) {
   // Update queues are created lazily.
+  // alternate 主要用来保存更新过程中各版本更新队列，方便崩溃或冲突时回退
   const alternate = fiber.alternate;
+  // 创建两个对列
   let queue1;
   let queue2;
   if (alternate === null) {
-    // There's only one fiber.
+    // There's only one fiber. // 只存在一个 fiber
     queue1 = fiber.updateQueue;
     queue2 = null;
     if (queue1 === null) {
       queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState);
     }
   } else {
-    // There are two owners.
+    // There are two owners. // 两个所有者
     queue1 = fiber.updateQueue;
     queue2 = alternate.updateQueue;
     if (queue1 === null) {

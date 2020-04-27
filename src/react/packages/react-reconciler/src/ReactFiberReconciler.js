@@ -112,6 +112,7 @@ function getContextForSubtree(
   return parentContext;
 }
 
+// 根节点更新
 function scheduleRootUpdate(
   current: Fiber,
   element: ReactNodeList,
@@ -139,6 +140,7 @@ function scheduleRootUpdate(
   const update = createUpdate(expirationTime);
   // Caution: React DevTools currently depends on this property
   // being called "element".
+  // 将虚拟DOM树放入payload 
   update.payload = {element};
 
   callback = callback === undefined ? null : callback;
@@ -153,12 +155,15 @@ function scheduleRootUpdate(
   }
 
   flushPassiveEffects();
+  // 开始队列更新
   enqueueUpdate(current, update);
+  // 调用调度器API：scheduleWork(...)来调度fiber任务
   scheduleWork(current, expirationTime);
 
   return expirationTime;
 }
 
+// 根据优先级更新DOM
 export function updateContainerAtExpirationTime(
   element: ReactNodeList,
   container: OpaqueRoot,
@@ -187,7 +192,7 @@ export function updateContainerAtExpirationTime(
   } else {
     container.pendingContext = context;
   }
-
+  // current fiber对象
   return scheduleRootUpdate(current, element, expirationTime, callback);
 }
 
@@ -280,6 +285,12 @@ export function createContainer(
   return createFiberRoot(containerInfo, isConcurrent, hydrate);
 }
 
+/* 
+ * updateContainer的源码很简单，通过computeExpirationForFiber获得计算优先级，
+ * 然后丢给updateContainerAtExpirationTime，这里updateContainerAtExpirationTime其实相当于什么都没做，
+ * 通过getContextForSubtree（这里getContextForSubtree因为一开始parentComponent是不存在的，于是返回一个空对象。
+ * 注意，这个空对象可以重复使用，不用每次返回一个新的空对象，这是一个很好的优化）获得上下文对象，然后分配给container.context或container.pendingContext，最后一起丢给scheduleRootUpdate。
+ */
 export function updateContainer(
   element: ReactNodeList,
   container: OpaqueRoot,
@@ -288,6 +299,7 @@ export function updateContainer(
 ): ExpirationTime {
   const current = container.current;
   const currentTime = requestCurrentTime();
+  // 计算任务到期时间
   const expirationTime = computeExpirationForFiber(currentTime, current);
   return updateContainerAtExpirationTime(
     element,

@@ -95,20 +95,20 @@ export type Fiber = {|
   // minimize the number of objects created during the initial render.
 
   // Tag identifying the type of fiber.
-  tag: WorkTag,
+  tag: WorkTag, // 标记fiber的tag
 
   // Unique identifier of this child.
-  key: null | string,
+  key: null | string, // 同React元素的值；唯一标识，调和阶段，标识fiber，以检测是否可重用该fiber实例；
 
   // The value of element.type which is used to preserve the identity during
   // reconciliation of this child.
   elementType: any,
 
   // The resolved function/class/ associated with this fiber.
-  type: any,
+  type: any,  // 同React元素的值；fiber对应的function/class/module类型组件名.
 
   // The local state associated with this fiber.
-  stateNode: any,
+  stateNode: any, // // fiber所在组件树的根组件FiberRoot对象
 
   // Conceptual aliases
   // parent : Instance -> return The parent happens to be the same as the
@@ -120,9 +120,10 @@ export type Fiber = {|
   // This is effectively the parent, but there can be multiple parents (two)
   // so this is only the parent of the thing we're currently processing.
   // It is conceptually the same as the return address of a stack frame.
-  return: Fiber | null,
+  return: Fiber | null, // 处理完当前fiber后返回的fiber，返回当前fiber所在fiber树的父级fiber实例
 
   // Singly Linked List Tree Structure.
+  // fiber树结构链接
   child: Fiber | null,
   sibling: Fiber | null,
   index: number,
@@ -132,11 +133,11 @@ export type Fiber = {|
   ref: null | (((handle: mixed) => void) & {_stringRef: ?string}) | RefObject,
 
   // Input is the data coming into process this fiber. Arguments. Props.
-  pendingProps: any, // This type will be more specific once we overload the tag.
-  memoizedProps: any, // The props used to create the output.
+  pendingProps: any, // This type will be more specific once we overload the tag.  // 当前处理过程中的组件props对象
+  memoizedProps: any, // The props used to create the output. // 缓存的之前组件props对象
 
   // A queue of state updates and callbacks.
-  updateQueue: UpdateQueue<any> | null,
+  updateQueue: UpdateQueue<any> | null, // 组件状态更新及对应回调函数的存储队列
 
   // The state used to create the output
   memoizedState: any,
@@ -174,7 +175,7 @@ export type Fiber = {|
   // This is a pooled version of a Fiber. Every fiber that gets updated will
   // eventually have a pair. There are cases when we can clean up pairs to save
   // memory if we need to.
-  alternate: Fiber | null,
+  alternate: Fiber | null,   // fiber的版本池，即记录fiber更新过程，便于恢复
 
   // Time spent rendering this Fiber and its descendants for the current update.
   // This tells us how well the tree makes use of sCU for memoization.

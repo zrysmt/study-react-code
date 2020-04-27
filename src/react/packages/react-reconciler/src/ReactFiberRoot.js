@@ -117,30 +117,30 @@ export function createFiberRoot(
   let root;
   if (enableSchedulerTracing) {
     root = ({
-      current: uninitializedFiber,
-      containerInfo: containerInfo,
-      pendingChildren: null,
+      current: uninitializedFiber,    // 当前fiber树中激活状态（正在处理）的fiber节点
+      containerInfo: containerInfo,   // fiber节点的容器元素相关信息，通常会直接传入容器元素
+      pendingChildren: null,          // 仅用于持久更新
 
-      earliestPendingTime: NoWork,
-      latestPendingTime: NoWork,
+      earliestPendingTime: NoWork,    // 从提交中暂停的最早和最新的优先级级别
+      latestPendingTime: NoWork,      // 
       earliestSuspendedTime: NoWork,
       latestSuspendedTime: NoWork,
-      latestPingedTime: NoWork,
+      latestPingedTime: NoWork,  // 由已解决的承诺 pinged 的最新优先级级别, 并可以重试
 
       pingCache: null,
 
-      didError: false,
+      didError: false,  //如果引发错误, 并且队列中没有其他更新, 我们尝试在处理前再一次从根中渲染错误。
 
-      pendingCommitExpirationTime: NoWork,
-      finishedWork: null,
-      timeoutHandle: noTimeout,
-      context: null,
+      pendingCommitExpirationTime: NoWork, 
+      finishedWork: null, // 已完成的工作正在进行的 HostRoot 已准备好提交
+      timeoutHandle: noTimeout, // setTimeout 返回的超时句柄。如果它被一个新的取代了。用于取消挂起的超时, 
+      context: null, // 顶部上下文对象, 由 renderSubtreeIntoContainer 使用
       pendingContext: null,
-      hydrate,
+      hydrate, // 确定我们是否应该尝试在初始加载使用 hydrate
       nextExpirationTimeToWorkOn: NoWork,
       expirationTime: NoWork,
       firstBatch: null,
-      nextScheduledRoot: null,
+      nextScheduledRoot: null, // 多组件树FirberRoot对象以单链表存储链接，指向下一个需要调度的FiberRoot
 
       interactionThreadID: unstable_getThreadID(),
       memoizedInteractions: new Set(),

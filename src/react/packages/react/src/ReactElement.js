@@ -111,13 +111,13 @@ function defineRefPropWarningGetter(props, displayName) {
 const ReactElement = function(type, key, ref, self, source, owner, props) {
   const element = {
     // This tag allows us to uniquely identify this as a React Element
-    $$typeof: REACT_ELEMENT_TYPE,
+    $$typeof: REACT_ELEMENT_TYPE, // 唯一类型
 
     // Built-in properties that belong on the element
-    type: type,
-    key: key,
-    ref: ref,
-    props: props,
+    type: type, // html: string, 自定义: 大写字母开头的对象
+    key: key,   // 遍历时要求的唯一key
+    ref: ref,   // 允许我们访问 DOM 节点或在 render 方法中创建的 React 元素
+    props: props, // 属性
 
     // Record the component responsible for creating this element.
     _owner: owner,

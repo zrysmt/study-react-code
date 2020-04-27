@@ -1742,7 +1742,7 @@ function retryTimedOutBoundary(boundaryFiber: Fiber, thenable: Thenable) {
 }
 
 function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
-  recordScheduleUpdate();
+  recordScheduleUpdate(); // 记录调度器的执行状态
 
   if (__DEV__) {
     if (fiber.tag === ClassComponent) {
@@ -1752,9 +1752,11 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
   }
 
   // Update the source fiber's expiration time
+  // 若fiber实例到期时间大于期望的任务到期时间，则更新fiber到期时间
   if (fiber.expirationTime < expirationTime) {
     fiber.expirationTime = expirationTime;
   }
+  // 同时更新alternate fiber的到期时间
   let alternate = fiber.alternate;
   if (alternate !== null && alternate.expirationTime < expirationTime) {
     alternate.expirationTime = expirationTime;
@@ -1762,7 +1764,9 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
   // Walk the parent path to the root and update the child expiration time.
   let node = fiber.return;
   let root = null;
+  // fiber.return 为空，说明到达组件树顶部
   if (node === null && fiber.tag === HostRoot) {
+    // 确保是组件树根组件并获取FiberRoot实例
     root = fiber.stateNode;
   } else {
     while (node !== null) {
@@ -1886,7 +1890,7 @@ function scheduleWork(fiber: Fiber, expirationTime: ExpirationTime) {
     nextRoot !== root
   ) {
     const rootExpirationTime = root.expirationTime;
-    requestWork(root, rootExpirationTime);
+    requestWork(root, rootExpirationTime); // 下一步
   }
   if (nestedUpdateCount > NESTED_UPDATE_LIMIT) {
     // Reset this back to zero so subsequent updates don't throw.
@@ -2105,7 +2109,7 @@ function requestWork(root: FiberRoot, expirationTime: ExpirationTime) {
 
   // TODO: Get rid of Sync and use current time?
   if (expirationTime === Sync) {
-    performSyncWork();
+    performSyncWork(); // 下一步
   } else {
     scheduleCallbackWithExpirationTime(root, expirationTime);
   }
@@ -2268,7 +2272,7 @@ function performWork(minExpirationTime: ExpirationTime, isYieldy: boolean) {
         nextFlushedRoot,
         nextFlushedExpirationTime,
         currentRendererTime > nextFlushedExpirationTime,
-      );
+      );  // 下一步
       findHighestPriorityRoot();
       recomputeCurrentRendererTime();
       currentSchedulerTime = currentRendererTime;
@@ -2279,7 +2283,7 @@ function performWork(minExpirationTime: ExpirationTime, isYieldy: boolean) {
       nextFlushedExpirationTime !== NoWork &&
       minExpirationTime <= nextFlushedExpirationTime
     ) {
-      performWorkOnRoot(nextFlushedRoot, nextFlushedExpirationTime, false);
+      performWorkOnRoot(nextFlushedRoot, nextFlushedExpirationTime, false); // 下一步
       findHighestPriorityRoot();
     }
   }
@@ -2371,7 +2375,7 @@ function performWorkOnRoot(
     let finishedWork = root.finishedWork;
     if (finishedWork !== null) {
       // This root is already complete. We can commit it.
-      completeRoot(root, finishedWork, expirationTime);
+      completeRoot(root, finishedWork, expirationTime);  // 下一步1
     } else {
       root.finishedWork = null;
       // If this root previously suspended, clear its existing timeout, since
@@ -2386,7 +2390,7 @@ function performWorkOnRoot(
       finishedWork = root.finishedWork;
       if (finishedWork !== null) {
         // We've completed the root. Commit it.
-        completeRoot(root, finishedWork, expirationTime);
+        completeRoot(root, finishedWork, expirationTime); // 下一步1
       }
     }
   } else {
@@ -2405,7 +2409,7 @@ function performWorkOnRoot(
         // $FlowFixMe Complains noTimeout is not a TimeoutID, despite the check above
         cancelTimeout(timeoutHandle);
       }
-      renderRoot(root, isYieldy);
+      renderRoot(root, isYieldy); // 下一步2
       finishedWork = root.finishedWork;
       if (finishedWork !== null) {
         // We've completed the root. Check the if we should yield one more time
@@ -2462,7 +2466,7 @@ function completeRoot(
     nestedUpdateCount = 0;
   }
   runWithPriority(ImmediatePriority, () => {
-    commitRoot(root, finishedWork);
+    commitRoot(root, finishedWork); // 下一步,结束
   });
 }
 
