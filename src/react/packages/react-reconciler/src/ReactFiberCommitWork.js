@@ -396,6 +396,7 @@ function commitLifeCycles(
     case ClassComponent: {
       const instance = finishedWork.stateNode;
       if (finishedWork.effectTag & Update) {
+        // 首次渲染
         if (current === null) {
           startPhaseTimer(finishedWork, 'componentDidMount');
           // We could update instance props and state here,
@@ -428,7 +429,7 @@ function commitLifeCycles(
           }
           instance.componentDidMount();
           stopPhaseTimer();
-        } else {
+        } else { // 更新
           const prevProps =
             finishedWork.elementType === finishedWork.type
               ? current.memoizedProps

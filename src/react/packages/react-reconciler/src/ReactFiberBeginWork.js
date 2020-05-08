@@ -1136,7 +1136,7 @@ function mountIncompleteClassComponent(
     renderExpirationTime,
   );
 }
-
+// --> renderWithHooks
 function mountIndeterminateComponent(
   _current,
   workInProgress,
